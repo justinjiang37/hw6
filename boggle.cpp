@@ -11,6 +11,8 @@
 
 #include "boggle.h"
 
+using namespace std;
+
 std::vector<std::vector<char> > genBoard(unsigned int n, int seed)
 {
 	//random number generator
@@ -83,7 +85,9 @@ std::set<std::string> boggle(const std::set<std::string>& dict, const std::set<s
 		for(unsigned int j=0;j<board.size();j++)
 		{
 			boggleHelper(dict, prefix, board, "", result, i, j, 0, 1);
+      // cout << "++++++" << endl;
 			boggleHelper(dict, prefix, board, "", result, i, j, 1, 0);
+      // cout << "++++++" << endl;
 			boggleHelper(dict, prefix, board, "", result, i, j, 1, 1);
 		}
 	}
@@ -94,6 +98,53 @@ std::set<std::string> boggle(const std::set<std::string>& dict, const std::set<s
 bool boggleHelper(const std::set<std::string>& dict, const std::set<std::string>& prefix, const std::vector<std::vector<char> >& board, 
 								   std::string word, std::set<std::string>& result, unsigned int r, unsigned int c, int dr, int dc)
 {
-//add your solution here!
+  // bound check
+  if (r >= board.size() || c >= board[0].size()) {
+    return false;
+  }
 
+  // add new char to the word
+  std::string newWord = word + board[r][c];
+
+  cout << newWord;
+
+  bool next;
+
+  // check if newWord is in the prefix set
+  if (prefix.find(newWord) == prefix.end()) {
+    cout << " Not in Prefix" << endl;
+    if (dict.find(newWord) != dict.end()) {
+      result.insert(newWord);
+      // always true after inserted a new word
+      return true;
+    }
+    // backtrack current new word is invalid
+    return false;
+  } else {
+    cout << " In Prefix" << endl;
+  }
+
+  // if (dict.find(newWord) == dict.end()) {
+  //   cout << " Not in Dict" << endl;
+  //   // backtrack current new word is invalid
+  // } else {
+  //   cout << " In Dict" << endl;
+  // }
+
+  // if in the prefix, longer word is possible so recurse with next possible
+  // call to next position in dir for longer word
+  next = boggleHelper(dict, prefix, board, newWord, result, r+dr, c+dc, dr, dc);
+
+  cout << next << endl;
+
+  // insert ONLY if there is not longer word found AND its in dict
+  if (!next && dict.find(newWord) != dict.end()) {
+    result.insert(newWord);
+    // always true after inserted a new word
+    return true;
+  }
+
+  // continue if new word is a prefix but not in dictionary
+  // or if new word is just in dictionary, just return
+  return (next || dict.find(newWord) != dict.end());
 }
